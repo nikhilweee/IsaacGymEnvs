@@ -542,7 +542,10 @@ class AllegroHand(VecTask):
     def reset_target_pose(self, env_ids, apply_reset=False):
         rand_floats = torch_rand_float(-1.0, 1.0, (len(env_ids), 4), device=self.device)
 
-        new_rot = randomize_rotation(rand_floats[:, 0], rand_floats[:, 1], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
+        # new_rot = randomize_rotation(rand_floats[:, 0], rand_floats[:, 1], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
+        rand_angle_y = torch.tensor(0.0)
+        new_rot = randomize_rotation_pen(rand_floats[:, 0], rand_floats[:, 1], rand_angle_y,
+                                         self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids], self.z_unit_tensor[env_ids])
 
         self.goal_states[env_ids, 0:3] = self.goal_init_state[env_ids, 0:3]
         self.goal_states[env_ids, 3:7] = new_rot
@@ -575,8 +578,8 @@ class AllegroHand(VecTask):
             self.reset_position_noise * rand_floats[:, self.up_axis_idx]
 
         new_object_rot = randomize_rotation(rand_floats[:, 3], rand_floats[:, 4], self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids])
-        if self.object_type == "pen":
-            rand_angle_y = torch.tensor(0.3)
+        if self.object_type in ["pen", "block"]:
+            rand_angle_y = torch.tensor(0.0)
             new_object_rot = randomize_rotation_pen(rand_floats[:, 3], rand_floats[:, 4], rand_angle_y,
                                                     self.x_unit_tensor[env_ids], self.y_unit_tensor[env_ids], self.z_unit_tensor[env_ids])
 
@@ -760,6 +763,6 @@ def randomize_rotation(rand0, rand1, x_unit_tensor, y_unit_tensor):
 
 @torch.jit.script
 def randomize_rotation_pen(rand0, rand1, max_angle, x_unit_tensor, y_unit_tensor, z_unit_tensor):
-    rot = quat_mul(quat_from_angle_axis(0.5 * np.pi + rand0 * max_angle, x_unit_tensor),
+    rot = quat_mul(quat_from_angle_axis(rand0 * max_angle, x_unit_tensor),
                    quat_from_angle_axis(rand0 * np.pi, z_unit_tensor))
     return rot

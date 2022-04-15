@@ -134,8 +134,8 @@ class AllegroHand(VecTask):
             print("New episode length: ", self.max_episode_length)
 
         if self.viewer != None:
-            cam_pos = gymapi.Vec3(10.0, 5.0, 1.0)
-            cam_target = gymapi.Vec3(6.0, 5.0, 0.0)
+            cam_pos = gymapi.Vec3(5.2, 2.8, 0.8)
+            cam_target = gymapi.Vec3(0.0, 2.8, 0.0)
             self.gym.viewer_camera_look_at(self.viewer, None, cam_pos, cam_target)
 
         # get gym GPU state tensors
@@ -286,7 +286,7 @@ class AllegroHand(VecTask):
         object_start_pose = gymapi.Transform()
         object_start_pose.p = gymapi.Vec3()
         object_start_pose.p.x = shadow_hand_start_pose.p.x
-        pose_dy, pose_dz = -0.2, 0.06
+        pose_dy, pose_dz = -0.1, 0.06
 
         object_start_pose.p.y = shadow_hand_start_pose.p.y + pose_dy
         object_start_pose.p.z = shadow_hand_start_pose.p.z + pose_dz
